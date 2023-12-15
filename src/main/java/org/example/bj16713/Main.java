@@ -5,22 +5,22 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.stream.IntStream;
+
 
 public class Main {
 
     private static int[] initialInputArray;
-
-    private static int[] numberArray;
-
+    private static int[] numberInputArray;
     private static int[] indexArray;
 
-    private static int getQueryResult(int startIndex, int endIndex) {
-        int[] rangedArray = Arrays.copyOfRange(numberArray, startIndex-1, endIndex);
-        if (rangedArray.length == 1) {
-            return rangedArray[0];
+    private static int[] getSubQueryResult() {
+        int[] subQueryArray = new int[numberInputArray.length + 1];
+        subQueryArray[0] = 0;
+
+        for(int i=1; i<=numberInputArray.length; i++) {
+           subQueryArray[i] = subQueryArray[i-1] ^ numberInputArray[i-1];
         }
-        return IntStream.of(rangedArray).boxed().reduce((x, y) -> x ^ y).get();
+        return subQueryArray;
     }
 
     public static void main(String[] args) throws Exception{
@@ -31,20 +31,17 @@ public class Main {
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        numberArray = Arrays.stream(br.readLine().split(" "))
+        numberInputArray = Arrays.stream(br.readLine().split(" "))
                 .mapToInt(Integer::parseInt)
                 .toArray();
 
-        int result = -999999999;
+        int result = 0;
+        int[] subQuery = getSubQueryResult();
         for (int i=0; i<initialInputArray[1]; i++) {
             indexArray = Arrays.stream(br.readLine().split(" "))
                     .mapToInt(Integer::parseInt)
                     .toArray();
-            if (result == -999999999) {
-                result = getQueryResult(indexArray[0], indexArray[1]);
-                continue;
-            }
-            result ^= getQueryResult(indexArray[0], indexArray[1]);
+            result ^= subQuery[indexArray[1]] ^ subQuery[indexArray[0] - 1] ;
         }
         bw.write(String.valueOf(result));
         bw.flush();
